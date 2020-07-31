@@ -26,14 +26,33 @@ class Network {
                 return
             }
             
-            print("data")
             let decoder = JSONDecoder()
                 
             if let json = try? decoder.decode([Employee].self, from: data) {
+                print("data", json)
                 completion(json)
             } else {
                 print("Error: ", error)
             }
         }.resume()
+        
+//        URLSession.shared.dataTask(with: tallinURL) { dataRaw, response, error in
+//            guard let data = dataRaw else {
+//                print("Error in Get Json")
+//                return
+//            }
+//            
+//            let decoder = JSONDecoder()
+//                
+//            if let json = try? decoder.decode([Employee].self, from: data) {
+//                print("data", json)
+//                completion(json)
+//            } else {
+//                print("Error: ", error)
+//            }
+//        }.resume()
+
+        
+        
     }
 }

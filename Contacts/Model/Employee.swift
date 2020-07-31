@@ -9,16 +9,27 @@
 import Foundation
 
 struct Employee: Decodable {
-    let fname: String
-    let lname: String
-    let email: String
-    let phone: String?
-    let position: PositionType
-    let project: ProjectType?
+    var fname: String
+//    var lname: String
+//    var email: String
+//    var phone: String?
+//    var position: String //PositionType
+//    var project: String? //ProjectType?
     
     init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
         let container = try decoder.container(keyedBy: CodingKeys.self)
-//        let employees = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .employees)
+        let employeeContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .employees)
+//        let container = try container?.(keyedBy: CodingKeys.self, forKey: .employees)
+//        fname = try container.decode(String.self, forKey: .fname)
+//        lname = try container.decode(String.self, forKey: .lname)
+//        let contsctDetails = try! container.nestedContainer(keyedBy: CodingKeys.self, forKey: .contact_details)
+//        email = try contsctDetails.decode(String.self, forKey: .email)
+//        phone = try? contsctDetails.decode(String.self, forKey: .phone)
+//        position = try container.decode(String.self, forKey: .posiiton)
+//        project = try? container.decode(String.self, forKey: .projects)
+        print("!!!!", employeeContainer.allKeys)
+        fname = try employeeContainer.decode(String.self, forKey: .fname)
     }
 }
 

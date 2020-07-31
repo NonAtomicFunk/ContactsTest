@@ -9,10 +9,17 @@
 import Foundation
 
 class BaseSceneVM {
+    var dataArray: [Employee] = [] {
+        didSet {
+            print("ARRAY count: ", dataArray.count)
+        }
+    }
+    
     public func getData() {
-        
+    
         Network.shared.getData { (employees) in
-            print("ARRAY count: ", employees.count)
+            self.dataArray = employees
+//            self.dataArray.append(employees)
         }
     }
 }
