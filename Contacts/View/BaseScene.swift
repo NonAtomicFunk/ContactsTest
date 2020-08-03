@@ -15,6 +15,16 @@ class BaseScene: UIViewController {
     var sections = [JobSection <String, Employee>]()
     
     @IBOutlet weak var table: UITableView!
+    lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action:
+            #selector(self.handleRefresh(_:)),
+                                 for: UIControl.Event.valueChanged)
+        refreshControl.tintColor = UIColor.black
+        
+        return refreshControl
+    }()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +44,11 @@ class BaseScene: UIViewController {
                                       preferredStyle: .alert)
         self.present(alert, animated: true, completion: nil)
     }
+    
+    @objc private func handleRefresh(_ refreshControl: UIRefreshControl) {
+        self.getData()
+        refreshControl.endRefreshing()
+    }
 }
 
 
@@ -41,9 +56,7 @@ class BaseScene: UIViewController {
 extension BaseScene {
     
     public func getData() {
-    
         // todo: CoreData
-        
         let tartuUrl: URL =  URL(string: Constants.tartuEmployeeList)!
         let tallinURL: URL = URL(string: Constants.tallinEmployeeList)!
         
@@ -71,8 +84,8 @@ extension BaseScene {
                     }
                     do {
                         let list = try JSONDecoder().decode(EmployeeList.self, from: data)
-                        print("list", list)
-                        self.rawDataArray += list.employees
+                        
+                        self.rawDataArray = list.employees
                         talinGroup.leave()
                         DispatchQueue.main.async {
                             self.sortItems()
@@ -150,6 +163,7 @@ extension BaseScene: UITableViewDelegate, UITableViewDataSource {
         
         self.table.register(UINib(nibName: "EmployeeCell", bundle: nil),
                             forCellReuseIdentifier: "EmployeeCell")
+        self.table.addSubview(self.refreshControl)
     }
     
     func sortItems() {
