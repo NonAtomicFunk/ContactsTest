@@ -12,15 +12,12 @@ import ContactsUI
 class BaseScene: UIViewController {
 
     var rawDataArray = [Employee]()
-//    var dataArray = [[Employee]]()
     var sections = [JobSection <String, Employee>]()
     
     @IBOutlet weak var table: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        self.viewModel = BaseSceneVM()
-//        self.viewmo
         self.setupTable()
     }
     
@@ -121,12 +118,10 @@ extension BaseScene {
 extension BaseScene: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-//        self.dataArray.count
         return self.sections.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return self.dataArray[section].count
         return self.sections[section].rows.count
     }
     
@@ -147,7 +142,6 @@ extension BaseScene: UITableViewDelegate, UITableViewDataSource {
         let jobTitle = section.sectionItem
         return jobTitle
     }
-
     
     
     func setupTable() {
@@ -167,11 +161,6 @@ extension BaseScene: UITableViewDelegate, UITableViewDataSource {
         self.sections.sort { lhs, rhs in
             return lhs.sectionItem < rhs.sectionItem
         }
-        
-//        self.section
-//        self.rawDataArray = self.rawDataArray.sorted { ($0.lname < $1.lname)}
-        
-        
         self.table.reloadData()
     }
 }
@@ -180,4 +169,10 @@ extension BaseScene: UITableViewDelegate, UITableViewDataSource {
 //MARK: Contacts
 extension BaseScene {
     
+    func requestForAccess(completionHandler: (_ accessGranted: Bool) -> Void) {
+        
+//        CNContactStore().requestAccess(for: .contacts) { (access, error) in
+//          print("Access: \(access)")
+//        }
+    }
 }

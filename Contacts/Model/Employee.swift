@@ -13,8 +13,8 @@ struct Employee: Decodable {
     var lname: String
     var email: String
     var phone: String?
-    var position: String //PositionType
-    var project: String? //ProjectType?
+    var position: String
+    var project: String?
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -33,21 +33,6 @@ struct EmployeeList: Decodable {
     var employees: [Employee]
 }
 
-enum PositionType: String {
-    case iOS = "IOS"
-    case android = "ANDROID"
-    case web = "WEB"
-    case pm = "PM"
-    case tester = "TESTER"
-    case sales = "SALES"
-    case other = "OTHER"
-}
-
-
-enum ProjectType: String {
-    case myCoolApp = "MyCoolApp"
-    case oneTimeThing = "OneTimeThing"
-}
 
 enum CodingKeys: String, CodingKey {
     case employees = "employees"
