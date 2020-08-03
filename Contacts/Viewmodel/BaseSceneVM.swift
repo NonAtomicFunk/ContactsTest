@@ -31,6 +31,7 @@ class BaseSceneVM {
                 self.dataArray += list.employees
 
             } catch let jsonErr {
+                
                 print("Error serializing json", jsonErr)
             }
         }.resume()
