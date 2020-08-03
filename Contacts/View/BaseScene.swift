@@ -7,11 +7,13 @@
 //
 
 import UIKit
-import ContactsUI
+//import ContactsUI
+import CoreData
 
 class BaseScene: UIViewController {
 
     var rawDataArray = [Employee]()
+    var employeesCoreDataArray: [NSManagedObject] = []
     var sections = [JobSection <String, Employee>]()
     
     @IBOutlet weak var table: UITableView!
@@ -29,6 +31,7 @@ class BaseScene: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupTable()
+        self.retrieveCoreData()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -60,7 +63,7 @@ extension BaseScene {
         let tartuUrl: URL =  URL(string: Constants.tartuEmployeeList)!
         let tallinURL: URL = URL(string: Constants.tallinEmployeeList)!
         
-        let talinGroup = DispatchGroup()
+        let group = DispatchGroup()
         let tartuGroup = DispatchGroup()
         let talinQueque = DispatchQueue(label: "talinQueque",
                                        qos: .default,
@@ -73,11 +76,10 @@ extension BaseScene {
                                        autoreleaseFrequency: .workItem,
                                        target: .none)
         
-        talinGroup.enter()
-        tartuGroup.enter()
+        group.enter()
         
         let talinTask = URLSession.shared.dataTask(with: tallinURL) { dataRaw, response, error in
-            talinQueque.async(group: talinGroup, qos: .userInitiated, flags: .assignCurrentContext) {
+            talinQueque.async(group: group, qos: .userInitiated, flags: .assignCurrentContext) {
                 
                 guard let data = dataRaw else {
                         return
@@ -86,10 +88,7 @@ extension BaseScene {
                         let list = try JSONDecoder().decode(EmployeeList.self, from: data)
                         
                         self.rawDataArray = list.employees
-                        talinGroup.leave()
-                        DispatchQueue.main.async {
-                            self.sortItems()
-                        }
+                        group.leave()
                     } catch let jsonErr {
                         
                         self.displayAlert(jsonErr.localizedDescription)
@@ -98,8 +97,9 @@ extension BaseScene {
         }
         talinTask.resume()
                     
+        group.enter()
         let tartuTask = URLSession.shared.dataTask(with: tartuUrl) { dataRaw, response, error in
-            tartuQueque.async(group: tartuGroup, qos: .userInitiated, flags: .inheritQoS) {
+            tartuQueque.async(group: group, qos: .userInitiated, flags: .inheritQoS) {
                 
                 guard let data = dataRaw else {
                         return
@@ -107,10 +107,11 @@ extension BaseScene {
                     do {
                         let list = try JSONDecoder().decode(EmployeeList.self, from: data)
                         self.rawDataArray += list.employees
-                        tartuGroup.leave()
+                        
                         DispatchQueue.main.async {
                             self.sortItems()
                         }
+                        group.leave()
                     } catch let jsonErr {
                         
                         self.displayAlert(jsonErr.localizedDescription)
@@ -124,6 +125,82 @@ extension BaseScene {
 // MARK: CoreData
 extension BaseScene {
     
+    
+    func retrieveCoreData() {
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "EmployeeCoreData")
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        
+        let request: NSFetchRequest<EmployeeCoreData> = Employee.fetchRequest()
+//        var coreDataArray = try managedContext.fetch(fetchRequest) //as [EmployeeCoreData]
+//
+//        // Then you can use your properties.
+//
+//        for location in locations {
+//
+//          print(location.name)
+//
+//        }
+        
+        
+//        do {
+//            var results = try managedContext.fetch(fetchRequest)
+//            let coreDataArray: [EmployeeCoreData] = results as! [EmployeeCoreData]
+//
+////            for item in coreDataArray {
+////                let employee = Employee(
+////            }
+//
+//        } catch let error as NSError {
+//            self.displayAlert("Could not fetch: \(error.localizedDescription)")
+//        }
+//        do {
+//            self.rawDataArray = try managedContext.fetch(fetchRequest)
+//        } catch {
+//            self.displayAlert("Could not fetch: \(error.localizedDescription)")
+//        }
+        
+    }
+    
+    func save(_ eployees: [Employee]) {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let entity = NSEntityDescription.entity(forEntityName: "EmployeeCoreData", in: managedContext)!
+        
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "EmployeeCoreData")
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            try managedContext.execute(deleteRequest)
+        } catch let error as NSError {
+            self.displayAlert(error.localizedDescription)
+        }
+        
+        for model in eployees {
+            let person = NSManagedObject(entity: entity, insertInto: managedContext)
+            person.setValue(model.fname, forKey: "fname")
+            person.setValue(model.email, forKey: "email")
+            person.setValue(model.lname, forKey: "lname")
+            person.setValue(model.phone, forKey: "phone")
+            person.setValue(model.position, forKey: "position")
+            person.setValue(model.project, forKey: "project")
+            
+            do {
+                try managedContext.save()
+                employeesCoreDataArray.append(person)
+                
+            } catch let error as NSError {
+                self.displayAlert("Could not save. \(error), \(error.userInfo)")
+            }
+        }
+    }
 }
 
 
@@ -167,7 +244,7 @@ extension BaseScene: UITableViewDelegate, UITableViewDataSource {
     }
     
     func sortItems() {
-        
+        self.save(self.rawDataArray)
         self.rawDataArray = self.rawDataArray.sorted(by: { (first, second) -> Bool in
             first.lname < second.lname
         })
