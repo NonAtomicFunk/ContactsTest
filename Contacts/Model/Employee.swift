@@ -16,10 +16,10 @@ struct Employee: Decodable {
     var phone: String?
     var position: String
     var project: String?
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         fname = try container.decode(String.self, forKey: .fname)
         lname = try container.decode(String.self, forKey: .lname)
         let contsctDetails = try! container.nestedContainer(keyedBy: CodingKeys.self, forKey: .contact_details)
@@ -27,6 +27,20 @@ struct Employee: Decodable {
         phone = try? contsctDetails.decode(String.self, forKey: .phone)
         position = try container.decode(String.self, forKey: .position)
         project = try? container.decode(String.self, forKey: .projects)
+    }
+
+    init(fname: String,
+    lname: String,
+    email: String,
+    phone: String?,
+    position: String,
+    project: String?) {
+        self.fname = ""
+        self.lname = ""
+        self.email = ""
+        self.phone = ""
+        self.position = ""
+        self.project = ""
     }
 }
 

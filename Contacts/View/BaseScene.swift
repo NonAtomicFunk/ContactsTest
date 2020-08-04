@@ -31,11 +31,11 @@ class BaseScene: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupTable()
-        self.retrieveCoreData()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+                self.retrieveCoreData()
         self.getData()
     }
     
@@ -86,7 +86,7 @@ extension BaseScene {
                     }
                     do {
                         let list = try JSONDecoder().decode(EmployeeList.self, from: data)
-                        
+//                        let rray = list.employees
                         self.rawDataArray = list.employees
                         group.leave()
                     } catch let jsonErr {
@@ -126,17 +126,16 @@ extension BaseScene {
 extension BaseScene {
     
     
-    func retrieveCoreData() {
+    func retrieveCoreData() {//-> [Employee] {
         
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
+            return //nil
         }
         
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "EmployeeCoreData")
         let managedContext = appDelegate.persistentContainer.viewContext
         
         
-        let request: NSFetchRequest<EmployeeCoreData> = Employee.fetchRequest()
 //        var coreDataArray = try managedContext.fetch(fetchRequest) //as [EmployeeCoreData]
 //
 //        // Then you can use your properties.
@@ -146,26 +145,52 @@ extension BaseScene {
 //          print(location.name)
 //
 //        }
-        
-        
-//        do {
+        do {
+            let fetchRequest = NSFetchRequest<EmployeeCoreData>(entityName: "EmployeeCoreData")
+            let sortDescriptor1 = NSSortDescriptor(key: "lname", ascending: true)
+            let sortDescriptor2 = NSSortDescriptor(key: "lname", ascending: true)
+            fetchRequest.sortDescriptors = [sortDescriptor1, sortDescriptor2]
+            
+//            let array: [EmployeeRetrievebleList] =
+            do {
+                let employees = try managedContext.fetch(fetchRequest)
+                print(employees, "!!!")
+                return //employees
+            } catch let error {
+                print(error)
+                return //nil
+            }
+
 //            var results = try managedContext.fetch(fetchRequest)
 //            let coreDataArray: [EmployeeCoreData] = results as! [EmployeeCoreData]
 //
-////            for item in coreDataArray {
-////                let employee = Employee(
-////            }
-//
-//        } catch let error as NSError {
-//            self.displayAlert("Could not fetch: \(error.localizedDescription)")
-//        }
-//        do {
-//            self.rawDataArray = try managedContext.fetch(fetchRequest)
-//        } catch {
-//            self.displayAlert("Could not fetch: \(error.localizedDescription)")
-//        }
-        
+////            let retrievable: [EmployeeRetrieveble] =
+//            for item in coreDataArray {
+//                let employee = Employee(fname: (item.fname!),
+//                                                        lname: item.fname!,
+//                                                        email: item.email!,
+//                                                        phone: item.phone ?? "",
+//                                                        position: item.position!,
+//                                                        project: item.project ?? "")
+//                //
+//                //                let employee = try? EmployeeRetrieveble(from: item as! Decoder)
+//                                self.rawDataArray.append(employee)
+//                                self.sortItems()
+//                print("employee: ", employee)
+//            }
+            
+        } catch let error as NSError {
+            self.displayAlert("Could not fetch: \(error.localizedDescription)")
+        }
+
     }
+    
+    
+    
+    
+    
+    
+    
     
     func save(_ eployees: [Employee]) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
