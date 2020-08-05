@@ -7,6 +7,7 @@
 //
 
 import UIKit
+//import Contacts
 //import ContactsUI
 import CoreData
 
@@ -26,6 +27,41 @@ class BaseScene: UIViewController {
         
         return refreshControl
     }()
+    
+//    lazy var contacts: [CNContact] = {
+//        let contactStore = CNContactStore()
+//        let keysToFetch = [
+//            CNContactFormatter.descriptorForRequiredKeysForStyle(.FullName),
+//            CNContactEmailAddressesKey,
+//            CNContactPhoneNumbersKey,
+//            CNContactImageDataAvailableKey,
+//            CNContactThumbnailImageDataKey]
+//
+//        // Get all the containers
+//        var allContainers: [CNContainer] = []
+//        do {
+//            allContainers = try contactStore.containersMatchingPredicate(nil)
+//        } catch {
+//            print("Error fetching containers")
+//        }
+//
+//        var results: [CNContact] = []
+//
+//        // Iterate all containers and append their contacts to our results array
+//        for container in allContainers {
+//            let fetchPredicate = CNContact.predicateForContactsInContainerWithIdentifier(container.identifier)
+//
+//            do {
+//                let containerResults = try contactStore.unifiedContactsMatchingPredicate(fetchPredicate, keysToFetch: keysToFetch)
+//                results.appendContentsOf(containerResults)
+//            } catch {
+//                print("Error fetching results for container")
+//            }
+//        }
+//
+//        return results
+//    }()
+
 
     
     override func viewDidLoad() {
@@ -121,6 +157,17 @@ extension BaseScene {
         }
         tartuTask.resume()
     }
+    
+    func sortItems() {
+        self.rawDataArray = self.rawDataArray.sorted(by: { (first, second) -> Bool in
+            first.lname < second.lname
+        })
+        self.sections = JobSection.group(rows: self.rawDataArray, by: { $0.position })
+        self.sections.sort { lhs, rhs in
+            return lhs.sectionItem < rhs.sectionItem
+        }
+        self.table.reloadData()
+    }
 }
 
 // MARK: CoreData
@@ -146,7 +193,6 @@ extension BaseScene {
             let coreDataArray: [EmployeeCoreData] = employees as! [EmployeeCoreData]
             
             for item in coreDataArray {
-                print("fname: ", item.fname!)
 
                 let employee = Employee(fname: item.fname!,
                                         lname: item.lname!,
@@ -163,11 +209,6 @@ extension BaseScene {
             self.displayAlert("Could not fetch: \(error.localizedDescription)")
         }
     }
-    
-    
-    
-    
-    
     
     
     
@@ -248,16 +289,14 @@ extension BaseScene: UITableViewDelegate, UITableViewDataSource {
         self.table.addSubview(self.refreshControl)
     }
     
-    func sortItems() {
-//        self.save(self.rawDataArray)
-        self.rawDataArray = self.rawDataArray.sorted(by: { (first, second) -> Bool in
-            first.lname < second.lname
-        })
-        self.sections = JobSection.group(rows: self.rawDataArray, by: { $0.position })
-        self.sections.sort { lhs, rhs in
-            return lhs.sectionItem < rhs.sectionItem
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        guard let model = self.sections[indexPath.section].rows[indexPath.row] as? Employee else {
+            return
         }
-        self.table.reloadData()
+        let detaildView = self.storyboard?.instantiateViewController(identifier: "DetailsScene") as! DetailsScene
+        detaildView.model = model
+        self.navigationController?.pushViewController(detaildView, animated: true)
     }
 }
 
@@ -267,6 +306,11 @@ extension BaseScene {
     
     func requestForAccess(completionHandler: (_ accessGranted: Bool) -> Void) {
         
+//        let status = CNContactStore.authorizationStatus(for: .contacts)
+//        if status == .denied || status == .restricted {
+//            presentSettingsActionSheet()
+//            return
+//        }
 //        CNContactStore().requestAccess(for: .contacts) { (access, error) in
 //          print("Access: \(access)")
 //        }
