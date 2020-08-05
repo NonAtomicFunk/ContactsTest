@@ -35,12 +35,12 @@ struct Employee: Decodable {
     phone: String?,
     position: String,
     project: String?) {
-        self.fname = ""
-        self.lname = ""
-        self.email = ""
-        self.phone = ""
-        self.position = ""
-        self.project = ""
+        self.fname = fname
+        self.lname = lname
+        self.email = email
+        self.phone = phone
+        self.position = position
+        self.project = project
     }
 }
 

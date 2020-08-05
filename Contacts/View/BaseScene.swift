@@ -109,6 +109,7 @@ extension BaseScene {
                         self.rawDataArray += list.employees
                         
                         DispatchQueue.main.async {
+                            self.save(self.rawDataArray)
                             self.sortItems()
                         }
                         group.leave()
@@ -136,53 +137,31 @@ extension BaseScene {
         let managedContext = appDelegate.persistentContainer.viewContext
         
         
-//        var coreDataArray = try managedContext.fetch(fetchRequest) //as [EmployeeCoreData]
-//
-//        // Then you can use your properties.
-//
-//        for location in locations {
-//
-//          print(location.name)
-//
-//        }
         do {
-            let fetchRequest = NSFetchRequest<EmployeeCoreData>(entityName: "EmployeeCoreData")
             let sortDescriptor1 = NSSortDescriptor(key: "lname", ascending: true)
             let sortDescriptor2 = NSSortDescriptor(key: "lname", ascending: true)
             fetchRequest.sortDescriptors = [sortDescriptor1, sortDescriptor2]
             
-//            let array: [EmployeeRetrievebleList] =
-            do {
-                let employees = try managedContext.fetch(fetchRequest)
-                print(employees, "!!!")
-                return //employees
-            } catch let error {
-                print(error)
-                return //nil
-            }
+            let employees = try managedContext.fetch(fetchRequest)
+            let coreDataArray: [EmployeeCoreData] = employees as! [EmployeeCoreData]
+            
+            for item in coreDataArray {
+                print("fname: ", item.fname!)
 
-//            var results = try managedContext.fetch(fetchRequest)
-//            let coreDataArray: [EmployeeCoreData] = results as! [EmployeeCoreData]
-//
-////            let retrievable: [EmployeeRetrieveble] =
-//            for item in coreDataArray {
-//                let employee = Employee(fname: (item.fname!),
-//                                                        lname: item.fname!,
-//                                                        email: item.email!,
-//                                                        phone: item.phone ?? "",
-//                                                        position: item.position!,
-//                                                        project: item.project ?? "")
-//                //
-//                //                let employee = try? EmployeeRetrieveble(from: item as! Decoder)
-//                                self.rawDataArray.append(employee)
-//                                self.sortItems()
-//                print("employee: ", employee)
-//            }
+                let employee = Employee(fname: item.fname!,
+                                        lname: item.lname!,
+                                        email: item.email!,
+                                        phone: item.phone ?? "",
+                                        position: item.position!,
+                                        project: item.project ?? "")
+                self.rawDataArray.append(employee)
+            }
+            
+            self.sortItems()
             
         } catch let error as NSError {
             self.displayAlert("Could not fetch: \(error.localizedDescription)")
         }
-
     }
     
     
@@ -218,8 +197,9 @@ extension BaseScene {
             person.setValue(model.project, forKey: "project")
             
             do {
-                try managedContext.save()
+                
                 employeesCoreDataArray.append(person)
+                try managedContext.save()
                 
             } catch let error as NSError {
                 self.displayAlert("Could not save. \(error), \(error.userInfo)")
@@ -269,7 +249,7 @@ extension BaseScene: UITableViewDelegate, UITableViewDataSource {
     }
     
     func sortItems() {
-        self.save(self.rawDataArray)
+//        self.save(self.rawDataArray)
         self.rawDataArray = self.rawDataArray.sorted(by: { (first, second) -> Bool in
             first.lname < second.lname
         })
