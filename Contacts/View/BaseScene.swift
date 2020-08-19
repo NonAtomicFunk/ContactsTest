@@ -71,7 +71,7 @@ class BaseScene: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-                self.retrieveCoreData()
+        self.retrieveCoreData()
         self.getData()
     }
     
@@ -100,7 +100,6 @@ extension BaseScene {
         let tallinURL: URL = URL(string: Constants.tallinEmployeeList)!
         
         let group = DispatchGroup()
-        let tartuGroup = DispatchGroup()
         let talinQueque = DispatchQueue(label: "talinQueque",
                                        qos: .default,
                                        attributes: .concurrent,
@@ -122,7 +121,6 @@ extension BaseScene {
                     }
                     do {
                         let list = try JSONDecoder().decode(EmployeeList.self, from: data)
-//                        let rray = list.employees
                         self.rawDataArray = list.employees
                         group.leave()
                     } catch let jsonErr {
@@ -209,8 +207,6 @@ extension BaseScene {
             self.displayAlert("Could not fetch: \(error.localizedDescription)")
         }
     }
-    
-    
     
     func save(_ eployees: [Employee]) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {

@@ -8,6 +8,8 @@
 
 import UIKit
 import CoreData
+import Contacts
+import ContactsUI
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -20,6 +22,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //          print("Access: \(access)")
 //        }
         // Override point for customization after application launch.
+//        CNContactStore().requestAccess(for: .contacts) { (access, error) in
+//          print("Access: \(access)")
+//        }
+        
         return true
     }
 
