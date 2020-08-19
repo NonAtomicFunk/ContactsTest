@@ -17,7 +17,7 @@ class EmployeeCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         self.selectionStyle = .none
-        
+        self.contactsButton.isHidden = true // remove as CNContacts introduced
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
